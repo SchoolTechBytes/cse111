@@ -49,9 +49,14 @@ def main():
         report the results to the user. 
         If the user enters "q" or "Q", quit the program.
     """
-    user_password = input("Please enter the password you want to check: ")
+    while True:
+        user_password = input("Please enter the password you want to check: ")
 
-    password_strength(user_password)
+        if (user_password == 'q') or (user_password == 'Q'):
+            print("Quitting program........")
+            break
+        else:
+            password_strength(user_password)
 
 
 def word_in_file(word, filename, case_sensitive):
