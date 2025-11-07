@@ -4,6 +4,13 @@
 # Instructor: Thomas Reid
 # Date: October 2025
 
+
+# Exceeding the Requirements:
+# Added a user friendly label that tells the user a rating
+
+# Please make sure to verify the file locations in password_strength function to be looking fo the correct file on your system.
+
+
 #================================================
 # María García, from the security team has provided the following requirements and resources to help create the password strength checker.
 #
@@ -50,16 +57,17 @@ def main():
         If the user enters "q" or "Q", quit the program.
     """
     while True:
-        user_password = input("Please enter the password you want to check: ")
+        user_password = input("Please enter the password you want to check (or Q to quit): ")
 
         if (user_password == 'q') or (user_password == 'Q'):
             print("Quitting program........")
             break
         else:
-            password_strength(user_password)
+            strength = password_strength(user_password)
+            print(f"Password strength score: {strength} (0 to 5)\n")
 
 
-def word_in_file(word, filename, case_sensitive):
+def word_in_file(word, filename, case_sensitive=False):
     """
     This function reads a file (specified by the filename parameter) in which each line of the file contains a single word. 
     If the word passed in the word parameter matches a word in the file the function returns a true otherwise it returns a false. 
@@ -67,7 +75,18 @@ def word_in_file(word, filename, case_sensitive):
     If case_sensitive is false a case insensitive match is performed. 
     The case_sensitive parameter should default to False
     """
-    pass
+    with open(filename, "r", encoding="utf-8") as file:
+        if case_sensitive:
+            for line in file:
+                if word == line.strip():
+                    return True
+        else:
+            word_lower = word.lower()
+            for line in file:
+                if word_lower == line.strip().lower():
+                    return True
+    
+    return False
 
 def word_has_character(word, character_list):
     """
@@ -76,7 +95,10 @@ def word_has_character(word, character_list):
     If any of the characters in the word are present in the character list return a true, 
     If none of the characters in the word are in the character list return false
     """
-    pass
+    for character in word:
+        if character in character_list:
+            return True
+    return False
 
 def word_complexity(word):
     """
@@ -87,7 +109,30 @@ def word_complexity(word):
     Since there are 4 kinds of characters the complexity rating will range from 0 to 4. 
     (0 would be returned only if word contained no characters or only contains characters that are not in any of the lists.) 
     """
-    pass
+    complexity = 0
+
+    if word_has_character(word, LOWER):
+        complexity += 1
+    if word_has_character(word, UPPER):
+        complexity += 1
+    if word_has_character(word, DIGITS):
+        complexity += 1
+    if word_has_character(word, SPECIAL):
+        complexity += 1
+
+    return complexity
+
+def strength_label(strength):
+    if strength == 0:
+        return "Very weak"
+    elif strength in (1, 2):
+        return "Weak"
+    elif strength == 3:
+        return "Fair"
+    elif strength == 4:
+        return "Strong"
+    else:
+        return "Very Strong"
 
 def password_strength(password, min_length=10, strong_length=16):
     """
@@ -99,7 +144,45 @@ def password_strength(password, min_length=10, strong_length=16):
     The min_length parameter should have a default value of 10. 
     The strong_length parameter should have a default value of 16 
     """
-    print(f"The password you entered is: {password}")
+    
+    if word_in_file(password, 'wordlist.txt', case_sensitive=True):
+        print("Password is a dictionary word and is not secure.")
+        strength = 0
+        label = strength_label(strength)
+        print(f"Strength rating: {label}")
+        return 0
+    
+    if word_in_file(password, 'toppasswords.txt', case_sensitive=True):
+        print("Password is a commonly used password and is not secure.")
+        strength = 0
+        label = strength_label(strength)
+        print(f"Strength rating: {label}")
+        return 0
+    
+    if len(password) < min_length:
+        print("Password is too short and is no secure.")
+        strength = 1
+        label = strength_label(strength)
+        print(f"Strength rating: {label}")
+        return 1
+    
+    if len(password) >= strong_length:
+        print("Password is long, length trumps complexity, this is a good password.")
+        strength = 5
+        label = strength_label(strength)
+        print(f"Strength rating: {label}")
+        return 5
+    
+    complexity = word_complexity(password)
+    strength = 1 + complexity
+
+    print(f"Password complexity score: {complexity}")
+    print(f"Password strength: {strength}")
+
+    label = strength_label(strength)
+    print(f"Strength rating: {label}")
+
+    return strength
 
 if __name__ == "__main__":
     main()
