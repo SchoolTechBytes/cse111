@@ -4,6 +4,7 @@
 # Instructor: Thomas Reid
 # Date: November 2025
 
+from formula import parse_formula
 
 def main():
     """
@@ -16,14 +17,26 @@ def main():
     Calculate Number of moles in the sample.
     Display the Number of moles.
     """
-    pass
+
+    chemical_formula = str(input("Please enter a chemical formula: "))
+    sample_size = float(input("Enter the sample size in grams: "))
+
+    my_periodic_dict = make_periodic_table()
+    parsed_info = parse_formula(chemical_formula, my_periodic_dict)
+    my_molar_mass = compute_molar_mass(parsed_info, my_periodic_dict)
+
+    print(f"The molar mass is {my_molar_mass} grams/mole")
+    number_of_moles = sample_size / my_molar_mass
+    print(f"The number of moles is {number_of_moles:.5f} moles")
 
 def make_periodic_table():
     """Returns a dictionary object which contains all of the elements of the periodic table.
-
-        For each element the dictionary key should be the element's symbol.
-        
+        For each element the dictionary key should be the element's symbol.   
         The value contains a list where the first item in the list is the element's name and the second item is the atomic mass.
+        Parameters: 
+            (none)
+        Returns: 
+            Dictionary 
     """
     periodic_table_dict = {
         "Ac": 	["Actinium", 	227],
@@ -131,6 +144,16 @@ def compute_molar_mass(symbol_quantity_list, periodic_table_dict):
         Multiply the elements atomic weight by the quantity of atoms for the element (from the symbol_quantity_list) and add that to the total mass.
     Return the total mass.
 """
+    molar_mass = 0.00
+
+    for i in symbol_quantity_list:
+        element = i[0]
+        e_quantity = i[1]
+        weight = periodic_table_dict[element][1]
+        atomic_mass = weight * e_quantity
+        molar_mass = molar_mass + atomic_mass
+
+    return molar_mass
 
 
 if __name__ == "__main__":
